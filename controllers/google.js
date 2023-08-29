@@ -1,4 +1,4 @@
-const { google } = require('googleapis');
+import { google } from 'googleapis';
 require('dotenv').config();
 
 const authClient = new google.auth.JWT({
@@ -10,7 +10,7 @@ const authClient = new google.auth.JWT({
 const extractGoogleDocsId = (url) => {
   const regex = /\/document\/d\/([a-zA-Z0-9-_]+)\/edit/i;
   const match = url.match(regex);
-  if (match && match[1]) {
+  if (match[1]) {
     return match[1];
   } else {
     return null;
@@ -62,4 +62,4 @@ const getDocumentContent = async (documentId) => {
   }
 };
 
-module.exports = { extractGoogleDocsId, getDocumentContent };
+export default { extractGoogleDocsId, getDocumentContent };
