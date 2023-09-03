@@ -1,5 +1,7 @@
-const axios = require('axios');
-require('dotenv').config();
+import axios from 'axios';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 // Função para dividir o texto em partes menores
 const splitTextIntoChunks = (text, maxTokens) => {
@@ -42,7 +44,7 @@ const analyzeText = async (message) => {
     const apiUrl = 'https://api.openai.com/v1/chat/completions';
     const apiKey = process.env.OPENAI_API_KEY;
 
-    const parts = splitTextIntoChunks(message, 2000);
+    const parts = splitTextIntoChunks(message, 4000);
 
     const getConversationContext = (partIndex) => {
       const context = [
@@ -93,7 +95,6 @@ const analyzeText = async (message) => {
     throw error;
   }
 };
-
 
 const validateSummary = async (message) => {
   try {
@@ -149,4 +150,4 @@ const findKeywords = async (message) => {
   }
 };
 
-module.exports = { splitTextIntoChunks, analyzeText, validateSummary, findKeywords };
+export { splitTextIntoChunks, analyzeText, validateSummary, findKeywords };

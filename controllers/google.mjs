@@ -1,5 +1,7 @@
 import { google } from 'googleapis';
-require('dotenv').config();
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const authClient = new google.auth.JWT({
   email: process.env.GOOGLE_CLIENT_EMAIL,
@@ -15,7 +17,7 @@ const extractGoogleDocsId = (url) => {
   } else {
     return null;
   }
-}
+};
 
 const getDocumentContent = async (documentId) => {
   const docs = google.docs({ version: 'v1', auth: authClient });
@@ -37,20 +39,6 @@ const getDocumentContent = async (documentId) => {
               content += e.textRun.content;
             }
           }
-        } else if (c.table) {
-          for (const row of c.table.tableRows) {
-            for (const cell of row.tableCells) {
-              for (const e of cell.content) {
-                if (e.paragraph) {
-                  for (const el of e.paragraph.elements) {
-                    if (el.textRun) {
-                      content += el.textRun.content;
-                    }
-                  }
-                }
-              }
-            }
-          }
         }
       }
     }
@@ -62,4 +50,4 @@ const getDocumentContent = async (documentId) => {
   }
 };
 
-export default { extractGoogleDocsId, getDocumentContent };
+export { extractGoogleDocsId, getDocumentContent };

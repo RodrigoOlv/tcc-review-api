@@ -1,10 +1,10 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
+import express from 'express';
+import bodyParser from 'body-parser';
+import cors from 'cors';
 
-const { getDocumentContent, extractGoogleDocsId } = require('./controllers/google');
-const { splitTextIntoChunks, analyzeText, validateSummary, findKeywords } = require('./controllers/chatGPT');
-const { validateReferences } = require('./referenceValidator'); // Importe a função
+import { getDocumentContent, extractGoogleDocsId } from './controllers/google.mjs';
+import { analyzeText, validateSummary, findKeywords } from './controllers/chatGPT.mjs';
+import { validateReferences } from  './referenceValidator.mjs'; // Importe a função
 
 const app = express();
 app.use(bodyParser.json());
