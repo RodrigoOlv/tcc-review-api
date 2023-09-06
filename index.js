@@ -2,8 +2,8 @@ import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 
-import { getDocumentContent, extractGoogleDocsId } from './controllers/google.mjs';
-import { analyzeText, validateSummary, findKeywords } from './controllers/chatGPT.mjs';
+import { getDocumentContent, extractGoogleDocsId } from './services/google.mjs';
+import { analyzeText, validateSummary, findKeywords } from './services/chatGPT.mjs';
 import { validateReferences } from  './referenceValidator.mjs'; // Importe a função
 
 const app = express();

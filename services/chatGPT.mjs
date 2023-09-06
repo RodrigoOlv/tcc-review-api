@@ -1,5 +1,6 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
+import { getGPTApiKey } from '../config/apiKeys.mjs';
 
 dotenv.config();
 
@@ -42,9 +43,9 @@ const cleanAndFormatResponse = (response) => {
 const analyzeText = async (message) => {
   try {
     const apiUrl = 'https://api.openai.com/v1/chat/completions';
-    const apiKey = process.env.OPENAI_API_KEY;
+    const apiKey = getGPTApiKey();
 
-    const parts = splitTextIntoChunks(message, 4000);
+    const parts = splitTextIntoChunks(message, 1000);
 
     const getConversationContext = (partIndex) => {
       const context = [
@@ -65,7 +66,7 @@ const analyzeText = async (message) => {
         messages: conversationContext,
         model: 'gpt-3.5-turbo',
         temperature: 0.5,
-        max_tokens: 4000,
+        max_tokens: 2000,
       }, {
         headers: {
           'Content-Type': 'application/json',
