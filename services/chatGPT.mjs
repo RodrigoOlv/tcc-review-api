@@ -1,6 +1,6 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
-import { getGPTApiKey } from '../config/apiKeys.mjs';
+import { callOpenAI } from './callOpenAI.mjs';
 
 dotenv.config();
 
@@ -42,39 +42,18 @@ const cleanAndFormatResponse = (response) => {
 
 const analyzeText = async (message) => {
   try {
-    const apiUrl = 'https://api.openai.com/v1/chat/completions';
-    const apiKey = getGPTApiKey();
-
     const parts = splitTextIntoChunks(message, 1000);
-
-    const getConversationContext = (partIndex) => {
-      const context = [
-        { role: 'system', content: 'Você é um assistente útil que analisa texto.' },
-        { role: 'user', content: 'Faça uma breve análise do texto quanto ao conteúdo, ignore quaisquer partes que não possam ser analisadas. O texto precisará ser enviado em partes, portanto, tente trabalhá-lo como um documento contínuo.' },
-        { role: 'user', content: `[Parte ${partIndex + 1}] ${parts[partIndex]}` },
-        { role: 'user', content: partIndex === parts.length - 1 ? 'Está é a última parte do texto' : 'Continuação da análise:' },
-      ];
-
-      return context;
-    };
-
-    let conversationContext = getConversationContext(0);
     const assistantResponses = [];
 
-    for (let i = 0; i < parts.length; i++) {
-      const response = await axios.post(apiUrl, {
-        messages: conversationContext,
-        model: 'gpt-3.5-turbo',
-        temperature: 0.5,
-        max_tokens: 2000,
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-      });
+    let conversationContext = [
+      { role: 'system', content: 'Você é um assistente útil que analisa texto.' },
+      { role: 'user', content: 'Faça uma breve análise do texto quanto ao conteúdo, ignore quaisquer partes que não possam ser analisadas. O texto precisará ser enviado em partes, portanto, tente trabalhá-lo como um documento contínuo.' },
+      { role: 'user', content: `[Parte 1] ${parts[0]}` },
+      { role: 'user', content: 'Continuação da análise:' },
+    ];
 
-      const assistantMessage = response.data.choices[0].message.content;
+    for (let i = 0; i < parts.length; i++) {
+      const assistantMessage = await callOpenAI(conversationContext, 500);
       
       // Limpe e formate a resposta antes de armazená-la
       const formattedResponse = cleanAndFormatResponse(assistantMessage);
@@ -84,7 +63,7 @@ const analyzeText = async (message) => {
       // Atualize o contexto apenas se houver mais partes a serem processadas
       if (i < parts.length - 1) {
         conversationContext = [
-          ...getConversationContext(i + 1),
+          ...conversationContext.slice(0, 3), // Mantenha as três primeiras mensagens
           { role: 'assistant', content: assistantMessage },
         ];
       }
