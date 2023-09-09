@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 
 import { getDocumentContent, extractGoogleDocsId } from './services/google.mjs';
-import { analyzeText, validateSummary, findKeywords } from './services/chatGPT.mjs';
+import { analyzeText, compileAnswer, validateSummary, findKeywords } from './services/chatGPT.mjs';
 import { validateReferences } from  './referenceValidator.mjs'; // Importe a função
 
 const app = express();
@@ -22,7 +22,7 @@ app.post('/document', async (req, res) => {
     let analysis = null;
     let missingReferences = null;
     
-    analysis = await analyzeText(content);
+    analysis = await compileAnswer(content);
 
     if (options.validateSummary) {
       summary = await validateSummary(content);

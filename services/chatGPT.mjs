@@ -53,7 +53,7 @@ const analyzeText = async (message) => {
     ];
 
     for (let i = 0; i < parts.length; i++) {
-      const assistantMessage = await callOpenAI(conversationContext, 500);
+      const assistantMessage = await callOpenAI(conversationContext, 300);
       
       // Limpe e formate a resposta antes de armazená-la
       const formattedResponse = cleanAndFormatResponse(assistantMessage);
@@ -75,6 +75,26 @@ const analyzeText = async (message) => {
     throw error;
   }
 };
+
+const compileAnswer = async ( text ) => {
+  try {
+    // Use a função analyzeText para obter respostas do modelo
+    const responses = await analyzeText(text);
+    const allResponses = responses.join('\n');
+
+    const messages = [
+      { role: 'system', content: 'Você é um assistente útil que cria resumos.' },
+      { role: 'user', content: `Crie um panorama geral com base nas respostas anteriores: ${allResponses}` }
+    ];
+
+    const response = await callOpenAI(messages, 800);
+
+    return response;
+  } catch (error) {
+    console.log('Erro ao criar um panorama geral:', error);
+    throw error;
+  }
+}
 
 const validateSummary = async (message) => {
   try {
@@ -130,4 +150,4 @@ const findKeywords = async (message) => {
   }
 };
 
-export { splitTextIntoChunks, analyzeText, validateSummary, findKeywords };
+export { splitTextIntoChunks, analyzeText, compileAnswer, validateSummary, findKeywords };
