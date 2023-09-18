@@ -29,19 +29,7 @@ const getDocumentContent = async (documentId) => {
 
     const document = response.data;
 
-    let content = '';
-
-    if (document.body.content) {
-      for (const c of document.body.content) {
-        if (c.paragraph) {
-          for (const e of c.paragraph.elements) {
-            if (e.textRun) {
-              content += e.textRun.content;
-            }
-          }
-        }
-      }
-    }
+    const content = extractContentFromDocument(document);
 
     return content;
   } catch (err) {
@@ -49,5 +37,27 @@ const getDocumentContent = async (documentId) => {
     throw err;
   }
 };
+
+const extractContentFromDocument = (document) => {
+  let content = '';
+
+  for (const c of document.body?.content || []) {
+    if (!c.paragraph) {
+      continue;
+    }
+
+    for (const e of c.paragraph.elements) {
+      if (!e.textRun) {
+        continue;
+      }
+
+      content += e.textRun.content;
+    }
+  }
+
+  return content;
+};
+
+
 
 export { extractGoogleDocsId, getDocumentContent };
