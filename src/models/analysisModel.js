@@ -7,6 +7,7 @@ const analysisSchema = new mongoose.Schema({
   options: {
     validateSummary: Boolean,
     findKeywords: Boolean,
+    checkReferences: Boolean
   },
 });
 

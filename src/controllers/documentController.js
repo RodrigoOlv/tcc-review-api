@@ -7,7 +7,7 @@ import { validateReferences } from '../referenceValidator.mjs';
 export async function processDocument(req, res) {
   try {
     // Conecte-se ao MongoDB
-    await connectToMongoDB();
+    connectToMongoDB();
 
     const url = req.body.url;
     const documentId = extractGoogleDocsId(url);
@@ -25,11 +25,9 @@ export async function processDocument(req, res) {
       options: options,
     });
 
-    console.log('Buscando no banco de dados:', analysisAlreadyExists);
-
     if (analysisAlreadyExists) {
       console.log('Análise retornada do banco de dados');
-      res.status(200).json(analysisAlreadyExists);
+      res.status(200).json(analysisAlreadyExists.analysis);
     } else {
       analysis = await analyzeText(content);
 
@@ -56,7 +54,11 @@ export async function processDocument(req, res) {
         analysis: typeof analysis !== 'string' ? JSON.stringify(analysis) : analysis,
         documentId: documentId,
         contentLength: content.length,
-        options: options,
+        options: {
+          validateSummary: options.validateSummary,
+          findKeywords: options.findKeywords,
+          checkReferences: options.checkReferences
+        },
       };
 
       const analysisObject = new AnalysisModel(objToInsert);
