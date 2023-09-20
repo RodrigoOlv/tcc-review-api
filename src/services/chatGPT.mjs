@@ -1,4 +1,3 @@
-import axios from 'axios';
 import dotenv from 'dotenv';
 import { callOpenAI } from './callOpenAI.mjs';
 
@@ -27,12 +26,6 @@ const splitTextIntoChunks = (text, maxTokens) => {
   return chunks;
 };
 
-// Estado inicial do contexto
-let conversationContext = [
-  { role: 'system', content: 'Você é um assistente útil que analisa texto.' },
-  { role: 'user', content: 'Início do texto a ser analisado:' },
-];
-
 const cleanAndFormatResponse = (response) => {
   // Remova o identificador da parte [Parte X] e os colchetes iniciais usando expressão regular
   const cleanedResponse = response.replace(/\[Parte \d+\]/g, '').replace(/^"|"$/g, '');
@@ -40,14 +33,16 @@ const cleanAndFormatResponse = (response) => {
   return cleanedResponse;
 };
 
-const analyzeText = async (message) => {
+const defaultInstruction = 'Faça uma breve análise do texto quanto ao conteúdo, ignore quaisquer partes que não possam ser analisadas. O texto precisará ser enviado em partes, portanto, tente trabalhá-lo como um documento contínuo.';
+
+const analyzeText = async (content, options) => {
   try {
-    const parts = splitTextIntoChunks(message, 1000);
+    const parts = splitTextIntoChunks(content, 1000);
     const assistantResponses = [];
 
     let conversationContext = [
       { role: 'system', content: 'Você é um assistente útil que analisa texto.' },
-      { role: 'user', content: 'Faça uma breve análise do texto quanto ao conteúdo, ignore quaisquer partes que não possam ser analisadas. O texto precisará ser enviado em partes, portanto, tente trabalhá-lo como um documento contínuo.' },
+      { role: 'user', content: createContentInstruction(defaultInstruction, options) },
       { role: 'user', content: `[Parte 1] ${parts[0]}` },
       { role: 'user', content: 'Continuação da análise:' },
     ];
@@ -76,58 +71,24 @@ const analyzeText = async (message) => {
   }
 };
 
-const validateSummary = async (message) => {
-  try {
-    const apiUrl = 'https://api.openai.com/v1/chat/completions';
-    const apiKey = process.env.OPENAI_API_KEY;
+function createContentInstruction(defaultInstruction, options) {
+  let contentInstruction = defaultInstruction;
 
-    const response = await axios.post(apiUrl, {
-      messages: [
-        { role: 'system', content: 'You are a helpful assistant that validates summaries.' },
-        { role: 'user', content: `Verifique se a seção resumo foi preenchida e está alinhada com os tópicos discutidos no restante do artigo: ${message}` }
-      ],
-      model: 'gpt-3.5-turbo',
-      temperature: 0.5,
-      max_tokens: 400,
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-    });
-
-    return response.data.choices[0].message.content;
-  } catch (error) {
-    console.log('Erro ao realizar a análise de resumo:', error);
-    throw error;
+  if (options.validateSummary) {
+    contentInstruction += ' Inclua um resumo do texto.';
   }
-};
 
-const findKeywords = async (message) => {
-  try {
-    const apiUrl = 'https://api.openai.com/v1/chat/completions';
-    const apiKey = process.env.OPENAI_API_KEY;
-
-    const response = await axios.post(apiUrl, {
-      messages: [
-        { role: 'system', content: 'You are a helpful assistant that identifies keywords.' },
-        { role: 'user', content: `Identifique os seis termos relevantes com maior ocorrência no seguinte texto: ${message}` }
-      ],
-      model: 'gpt-3.5-turbo',
-      temperature: 0.5,
-      max_tokens: 50,
-    }, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-      },
-    });
-
-    return response.data.choices[0].message.content;
-  } catch (error) {
-    console.log('Erro ao realizar a análise de palavras chave:', error);
-    throw error;
+  if (options.findKeywords) {
+    contentInstruction += ' Encontre as palavras-chave no texto.';
   }
-};
 
-export { splitTextIntoChunks, analyzeText, validateSummary, findKeywords };
+  if (options.improvementSuggestions) {
+    contentInstruction += ' Sugira melhorias no texto.';
+  }
+
+  console.log('Instrução: ', contentInstruction);
+
+  return contentInstruction;
+}
+
+export { splitTextIntoChunks, analyzeText };

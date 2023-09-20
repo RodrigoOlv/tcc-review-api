@@ -1,8 +1,7 @@
 import { AnalysisModel } from '../models/analysisModel.js';
 import { connectToMongoDB, disconnectFromMongoDB } from '../config/database.mjs';
 import { getDocumentContent, extractGoogleDocsId } from '../services/google.mjs';
-import { analyzeText, validateSummary, findKeywords } from '../services/chatGPT.mjs';
-import { validateReferences } from '../referenceValidator.mjs';
+import { analyzeText } from '../services/chatGPT.mjs';
 
 export async function processDocument(req, res) {
   try {
@@ -14,10 +13,8 @@ export async function processDocument(req, res) {
     const options = req.body.options;
 
     const content = await getDocumentContent(documentId);
-    let summary = null;
-    let keywords = null;
+
     let analysis = null;
-    let missingReferences = null;
 
     const analysisAlreadyExists = await AnalysisModel.findOne({
       documentId: documentId,
@@ -29,26 +26,7 @@ export async function processDocument(req, res) {
       console.log('Análise retornada do banco de dados');
       res.status(200).json(analysisAlreadyExists.analysis);
     } else {
-      analysis = await analyzeText(content);
-
-      if (options.validateSummary) {
-        summary = await validateSummary(content);
-      }
-
-      if (options.findKeywords) {
-        keywords = await findKeywords(content);
-      }
-
-      if (options.checkReferences) {
-        missingReferences = validateReferences(content);
-      }
-
-      const responseObj = {
-        analysis: analysis,
-        summary: summary,
-        keywords: keywords,
-        missingReferences: missingReferences,
-      };
+      analysis = await analyzeText(content, options);
 
       const objToInsert = {
         analysis: typeof analysis !== 'string' ? JSON.stringify(analysis) : analysis,
@@ -65,7 +43,7 @@ export async function processDocument(req, res) {
       await analysisObject.save();
 
       console.log('Objeto salvo com sucesso no MongoDB');
-      res.status(200).json(responseObj);
+      res.status(200).json(analysis);
     }
   } catch (err) {
     console.log(`Ocorreu um erro: ${err}`);
