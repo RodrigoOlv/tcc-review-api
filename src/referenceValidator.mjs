@@ -1,4 +1,4 @@
-const checkReferences = (content) => {
+const validateReferences = (content) => {
     const references = content.match(/\[(\d+)\]/g); // Encontra todas as referências no formato "[n]"
     const citations = content.match(/\[(\d+)\]/g);   // Encontra todas as citações no formato "[n]"
     
@@ -10,4 +10,4 @@ const checkReferences = (content) => {
     return null;
 };
 
-module.exports = { checkReferences };
+export { validateReferences };
