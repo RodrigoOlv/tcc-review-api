@@ -24,8 +24,10 @@ export async function processDocument(req, res) {
 
     if (analysisAlreadyExists) {
       console.log('Análise retornada do banco de dados');
-      res.status(200).json(analysisAlreadyExists.analysis);
-    } else {
+
+      res.status(200).json(JSON.parse(analysisAlreadyExists.analysis));
+    }
+    else {
       analysis = await analyzeText(content, options);
 
       const objToInsert = {
@@ -35,7 +37,7 @@ export async function processDocument(req, res) {
         options: {
           validateSummary: options.validateSummary,
           findKeywords: options.findKeywords,
-          checkReferences: options.checkReferences
+          improvementSuggestions: options.improvementSuggestions
         },
       };
 
