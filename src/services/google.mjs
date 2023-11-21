@@ -10,13 +10,11 @@ const authClient = new google.auth.JWT({
 });
 
 const extractGoogleDocsId = (url) => {
-  const regex = /\/document\/d\/([a-zA-Z0-9-_]+)\/edit/i;
-  const match = url.match(regex);
-  if (match[1]) {
-    return match[1];
-  } else {
-    return null;
-  }
+  // Utilizando o operador de encadeamento opcional
+  const match = url?.match(/\/document\/d\/([a-zA-Z0-9-_]+)\/edit/i);
+  
+  // Retorna o resultado da expressão, que será a correspondência ou null se não houver correspondência
+  return match?.[1] || null;
 };
 
 const getDocumentContent = async (documentId) => {
@@ -38,10 +36,11 @@ const getDocumentContent = async (documentId) => {
   }
 };
 
+
 const extractContentFromDocument = (document) => {
   let content = '';
 
-  for (const c of document.body?.content || []) {
+  for (const c of document?.body?.content || []) {
     if (!c.paragraph) {
       continue;
     }
@@ -60,4 +59,4 @@ const extractContentFromDocument = (document) => {
 
 
 
-export { extractGoogleDocsId, getDocumentContent };
+export { extractGoogleDocsId, getDocumentContent, extractContentFromDocument };
