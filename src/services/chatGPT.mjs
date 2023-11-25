@@ -3,35 +3,37 @@ import { callOpenAI } from './callOpenAI.mjs';
 
 dotenv.config();
 
-// Função para dividir o texto em partes menores
+/**
+ * Divide o texto em pedaços com base no número máximo de tokens.
+ * @param {string} text - O texto a ser dividido.
+ * @param {number} maxTokens - O número máximo de tokens por pedaço.
+ * @returns {string[]} - Array de pedaços de texto.
+ */
 const splitTextIntoChunks = (text, maxTokens) => {
+  const words = text.split(/\s+/).filter(Boolean);  // Quebra palavras corretamente
   const chunks = [];
-  const words = text.split(' ');
-  let currentChunk = '';
 
-  for (const word of words) {
-    const wordTokens = word.split(' ').length;
-    if ((currentChunk.length + wordTokens) <= maxTokens) {
-      currentChunk += ` ${word}`;
-    } else {
-      chunks.push(currentChunk.trim());
-      currentChunk = `${word}`;
-    }
-  }
-
-  if (currentChunk.length > 0) {
-    chunks.push(currentChunk.trim());
+  for (let i = 0; i < words.length; i += maxTokens) {
+    const chunk = words.slice(i, i + maxTokens).join(' ');
+    chunks.push(chunk);
   }
 
   return chunks;
 };
 
+/**
+ * Limpa e formata a resposta removendo identificadores de parte [Parte X] e colchetes iniciais.
+ *
+ * @param {string} response - A resposta a ser limpa e formatada.
+ * @returns {string} A resposta limpa e formatada.
+ */
 const cleanAndFormatResponse = (response) => {
   // Remova o identificador da parte [Parte X] e os colchetes iniciais usando expressão regular
-  const cleanedResponse = response.replace(/\[Parte \d+\]/g, '').replace(/^"|"$/g, '');
+  const cleanedResponse = response.replace(/^\[.*?\] /, '').replace(/^\[|\]$/g, '').replace(/^"|"$/g, '');
 
   return cleanedResponse;
 };
+
 
 const defaultInstruction = 'O texto precisará ser enviado em partes, portanto, tente trabalhá-lo como um documento contínuo e seja breve. Identifique inconsistências e erros no texto, analise seu conteúdo, linguagem, clareza e fluidez.';
 
@@ -91,4 +93,4 @@ function createContentInstruction(defaultInstruction, options) {
   return contentInstruction;
 }
 
-export { splitTextIntoChunks, analyzeText };
+export { splitTextIntoChunks, analyzeText, cleanAndFormatResponse, createContentInstruction };
