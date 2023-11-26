@@ -5,7 +5,7 @@ import { describe, it } from 'mocha';
 import { expect } from 'chai';
 
 // Importa as funções do módulo de serviços do Google
-import { extractGoogleDocsId, extractContentFromDocument } from '../src/services/google.mjs';
+import { extractGoogleDocsId, extractContentFromDocument } from '../../src/services/google.mjs';
 
 // Descreve o conjunto de testes para o serviço do Google
 describe('Google Service', () => {

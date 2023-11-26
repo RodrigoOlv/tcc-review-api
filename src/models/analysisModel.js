@@ -13,4 +13,4 @@ const analysisSchema = new mongoose.Schema({
 
 const AnalysisModel = mongoose.model('Analysis', analysisSchema);
 
-export { AnalysisModel };
+export default AnalysisModel;

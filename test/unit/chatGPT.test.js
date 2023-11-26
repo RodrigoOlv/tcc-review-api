@@ -1,7 +1,7 @@
-// test/textAnalysis.test.js
+// test/chatGPT.test.js
 import { describe, it } from 'mocha';
 import { expect } from 'chai';
-import { splitTextIntoChunks, cleanAndFormatResponse, createContentInstruction } from '../src/services/chatGPT.mjs';
+import { splitTextIntoChunks, cleanAndFormatResponse, createContentInstruction } from '../../src/services/chatGPT.mjs';
 
 // Instrução padrão para criação de conteúdo
 const defaultInstruction = 'O texto precisará ser enviado em partes, portanto, tente trabalhá-lo como um documento contínuo e seja breve. Identifique inconsistências e erros no texto, analise seu conteúdo, linguagem, clareza e fluidez.';

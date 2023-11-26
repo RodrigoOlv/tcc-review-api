@@ -3,7 +3,7 @@ import { describe, it, afterEach, after } from 'mocha';
 import { expect } from 'chai';
 import sinon from 'sinon';
 import axios from 'axios';
-import { callOpenAI } from '../src/services/callOpenAI.mjs';
+import { callOpenAI } from '../../src/services/callOpenAI.mjs';
 
 describe('callOpenAI', () => {
   // Stub axios para simular uma chamada que gera um erro

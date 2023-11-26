@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "mocha --require esm --exit"
+    "test": "mocha --require esm --exit",
+    "test-api": "mocha 'test/api/**/*'",
+    "test-unit": "mocha 'test/unit/**/*'",
+    "test-all": "npm run test && npm run test-api && npm run test-unit"
   },
   "dependencies": {
     "axios": "^1.4.0",

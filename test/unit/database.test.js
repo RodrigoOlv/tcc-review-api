@@ -2,8 +2,8 @@
 import mongoose from 'mongoose';
 import { describe, it, before, after } from 'mocha';
 import { expect } from 'chai';
-import { connectToMongoDB, disconnectFromMongoDB } from '../src/config/database.mjs';
-import { AnalysisModel } from '../src/models/analysisModel.js';
+import { connectToMongoDB, disconnectFromMongoDB } from '../../src/config/database.js';
+import AnalysisModel from '../../src/models/analysisModel.js';
 
 /**
  * Testes para a conexão e desconexão com o MongoDB.

@@ -1,16 +1,23 @@
-import { AnalysisModel } from '../models/analysisModel.js';
-import { connectToMongoDB, disconnectFromMongoDB } from '../config/database.mjs';
-import { getDocumentContent, extractGoogleDocsId } from '../services/google.mjs';
+import { connectToMongoDB, disconnectFromMongoDB } from '../config/database.js';
+import { extractGoogleDocsId, getDocumentContent } from '../services/google.mjs';
 import { analyzeText } from '../services/chatGPT.mjs';
+import AnalysisModel from '../models/analysisModel.js';
 
 export async function processDocument(req, res) {
   try {
+    console.log('Recebendo requisição para processar documento...');
+
     // Conecte-se ao MongoDB
     connectToMongoDB();
 
     const url = req.body.url;
     const documentId = extractGoogleDocsId(url);
     const options = req.body.options;
+
+    if (!documentId) {
+      // Se não for possível extrair um ID válido do URL, retorne uma resposta adequada
+      return res.status(400).send({ error: 'URL inválida' });
+    }
 
     const content = await getDocumentContent(documentId);
 
@@ -26,8 +33,7 @@ export async function processDocument(req, res) {
       console.log('Análise retornada do banco de dados');
 
       res.status(200).json(JSON.parse(analysisAlreadyExists.analysis));
-    }
-    else {
+    } else {
       analysis = await analyzeText(content, options);
 
       const objToInsert = {
@@ -37,7 +43,7 @@ export async function processDocument(req, res) {
         options: {
           validateSummary: options.validateSummary,
           findKeywords: options.findKeywords,
-          improvementSuggestions: options.improvementSuggestions
+          improvementSuggestions: options.improvementSuggestions,
         },
       };
 
@@ -48,9 +54,12 @@ export async function processDocument(req, res) {
       res.status(200).json(analysis);
     }
   } catch (err) {
-    console.log(`Ocorreu um erro: ${err}`);
-    res.status(500).send({ error: 'Ocorreu um erro ao processar a solicitação.' });
+    console.error(`Ocorreu um erro: ${err}`);
+
+    // Modificado: Adicione detalhes do erro à resposta para fins de depuração
+    res.status(500).send({ error: `Ocorreu um erro ao processar a solicitação. Detalhes: ${err.message}` });
   } finally {
+    console.log('Finalizando processamento do documento...');
     // Certifique-se de desconectar do MongoDB após salvar
     disconnectFromMongoDB();
   }
