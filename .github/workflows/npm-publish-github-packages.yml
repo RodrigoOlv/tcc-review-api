@@ -1,0 +1,105 @@
+name: Full CI/CD Pipeline
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  prepare-frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.11.0
+
+      - name: Install Dependencies
+        run: npm install
+
+  prepare-backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Backend Repository
+        uses: actions/checkout@v2
+        with:
+          repository: RodrigoOlv/tcc-review-api
+          ref: feature/tests
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.11.0
+
+      - name: Copy .env.example and Set Environment Variables
+        run: |
+          cp .env.example .env
+          echo "GOOGLE_CLIENT_EMAIL=${{ vars.GOOGLE_CLIENT_EMAIL }}" >> .env
+          echo "GOOGLE_PRIVATE_KEY=${{ vars.GOOGLE_PRIVATE_KEY }}" >> .env
+          echo "OPENAI_API_KEY=${{ vars.OPENAI_API_KEY }}" >> .env
+          echo "MONGODB_URL=${{ vars.MONGODB_URL }}" >> .env
+
+      - name: Install Dependencies
+        run: npm install
+
+  run-unit-tests:
+    needs: [prepare-backend]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.11.0
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Unit Tests
+        run: npm run test-unit
+
+  run-api-tests:
+    needs: [prepare-backend]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.11.0
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run API Tests
+        run: npm run test-api
+
+  run-system-tests:
+    needs: [prepare-frontend]
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18.11.0
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run System Tests with Cypress
+        run: npm run test
