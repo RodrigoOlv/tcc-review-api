@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "test": "mocha --require esm --exit",
-    "test-api": "mocha 'test/api/**/*'",
-    "test-unit": "mocha 'test/unit/**/*'",
+    "test-api": "mocha 'test/api/**/*.{js,mjs}'",
+    "test-unit": "mocha 'test/unit/**/*.{js,mjs}'",
     "test-all": "npm run test && npm run test-api && npm run test-unit"
   },
   "dependencies": {
