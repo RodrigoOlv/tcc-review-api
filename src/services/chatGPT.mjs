@@ -33,7 +33,7 @@ const cleanAndFormatResponse = (response) => {
   return cleanedResponse;
 };
 
-const defaultInstruction = 'Faça uma breve análise do texto quanto ao conteúdo, ignore quaisquer partes que não possam ser analisadas. O texto precisará ser enviado em partes, portanto, tente trabalhá-lo como um documento contínuo.';
+const defaultInstruction = 'O texto precisará ser enviado em partes, portanto, tente trabalhá-lo como um documento contínuo e seja breve. Identifique inconsistências e erros no texto, analise seu conteúdo, linguagem, clareza e fluidez.';
 
 const analyzeText = async (content, options) => {
   try {
@@ -48,7 +48,7 @@ const analyzeText = async (content, options) => {
     ];
 
     for (let i = 0; i < parts.length; i++) {
-      const assistantMessage = await callOpenAI(conversationContext, 500);
+      const assistantMessage = await callOpenAI(conversationContext, 2000);
       
       // Limpe e formate a resposta antes de armazená-la
       const formattedResponse = cleanAndFormatResponse(assistantMessage);
